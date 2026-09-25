@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.venv-*/
+
+# Local model weights (use Git LFS or a release for large files)
+*.pt
+*.onnx
+*.engine
+
+# Local media and generated output
+input_foler/
+output_image/
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.webp
+*.tif
+*.tiff
+
+# Local tooling and secrets
+.vscode/
+.env
