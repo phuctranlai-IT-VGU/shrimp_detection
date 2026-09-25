@@ -7,8 +7,7 @@ YOLO-based shrimp detection for images and videos. The launcher automatically se
 - `main.py`: routes an image to `model1.py` and a video to `model2.py`.
 - `model1.py`: detects shrimp in one image.
 - `model2.py`: detects shrimp in video, draws confidence boxes, tracks objects between detections, and reports progress/FPS.
-- `best.pt`: trained YOLO weights. Keep this file local or publish it with Git LFS/a release because model files are usually too large for normal GitHub storage.
-
+- `best.pt`: trained YOLO26.
 ## Setup on Windows
 
 Use Python 3.10+ and create a virtual environment:
