@@ -1,4 +1,5 @@
 import argparse
+import json
 import sys
 import time
 from dataclasses import dataclass
@@ -9,9 +10,9 @@ import numpy as np
 import torch
 from ultralytics import YOLO
 
-
 PROJECT_DIR = Path(__file__).resolve().parent
 MODEL_PATH = PROJECT_DIR / "best.pt"
+OUTPUT_DIR = PROJECT_DIR / "output_video"
 DETECT_INTERVAL = 1
 MAX_MISSED_DETECTIONS = 3
 CONFIDENCE = 0.25
@@ -161,7 +162,7 @@ def update_by_optical_flow(tracks: list[Track], previous_frame, frame) -> None:
 def draw_tracks(frame, tracks: list[Track]) -> None:
 	for track in tracks:
 		x1, y1, x2, y2 = track.bbox
-		label = f"Confidence: {track.confidence:.2f}"
+		label = f"Shrimp {track.track_id}: {track.confidence:.2f}"
 		cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 		cv2.putText(
 			frame,
@@ -184,6 +185,12 @@ def main() -> None:
 		default="auto",
 		help="Thiết bị detect: auto (mặc định), gpu hoặc cpu",
 	)
+	parser.add_argument(
+		"--output",
+		type=Path,
+		default=None,
+		help="Đường dẫn video output sau khi detect tôm",
+	)
 	args = parser.parse_args()
 	global DEVICE
 	DEVICE = resolve_device(args.device)
@@ -192,7 +199,13 @@ def main() -> None:
 	if not video_path.is_file():
 		raise FileNotFoundError(f"Không tìm thấy video đầu vào: {video_path}")
 
-	output_path = video_path.with_name(f"{video_path.stem}_detected.mp4")
+	output_path = (
+		args.output.expanduser()
+		if args.output is not None
+		else OUTPUT_DIR / f"{video_path.stem}_detected.mp4"
+	)
+	output_path.parent.mkdir(parents=True, exist_ok=True)
+	metadata_path = output_path.with_suffix(".jsonl")
 	model = YOLO(str(MODEL_PATH))
 	capture = cv2.VideoCapture(str(video_path))
 	if not capture.isOpened():
@@ -226,6 +239,7 @@ def main() -> None:
 	previous_frame = None
 	frame_number = 0
 	start_time = time.perf_counter()
+	metadata_file = metadata_path.open("w", encoding="utf-8")
 	try:
 		while True:
 			success, frame = capture.read()
@@ -237,6 +251,10 @@ def main() -> None:
 				next_id = update_tracks(tracks, detections, next_id)
 			else:
 				update_by_optical_flow(tracks, previous_frame, frame)
+
+			metadata_file.write(
+				json.dumps([list(track.bbox) for track in tracks]) + "\n"
+			)
 
 			draw_tracks(frame, tracks)
 			writer.write(frame)
@@ -261,6 +279,7 @@ def main() -> None:
 					flush=True,
 				)
 	finally:
+		metadata_file.close()
 		capture.release()
 		writer.release()
 
@@ -269,6 +288,7 @@ def main() -> None:
 	print(f"Tốc độ trung bình: {frame_number / elapsed:.2f} FPS")
 	print(f"Đã xử lý {frame_number} frame")
 	print(f"Video kết quả đã được lưu tại: {output_path}")
+	print(f"Thông tin box trung gian: {metadata_path}")
 
 
 if __name__ == "__main__":

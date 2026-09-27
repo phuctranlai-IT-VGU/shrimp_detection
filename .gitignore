@@ -7,25 +7,23 @@ __pycache__/
 
 # Local model weights (use Git LFS or a release for large files)
 *.pt
+!best.pt
+!shrimp_disease.pt
 *.onnx
 *.engine
 
 # Local media and generated output
-input_foler/
-output_image/
-*.mp4
-*.avi
-*.mov
-*.mkv
-*.webm
-*.jpg
-*.jpeg
-*.png
-*.bmp
-*.webp
-*.tif
-*.tiff
+/input_foler/
+/output_image/
+/output_video/
 
 # Local tooling and secrets
 .vscode/
 .env
+.env.*
+!.env.example
+
+# Operating system files
+Thumbs.db
+Desktop.ini
+.DS_Store

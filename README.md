@@ -4,10 +4,14 @@ YOLO-based shrimp detection for images and videos. The launcher automatically se
 
 ## Project layout
 
-- `main.py`: routes an image to `model1.py` and a video to `model2.py`.
-- `model1.py`: detects shrimp in one image.
-- `model2.py`: detects shrimp in video, draws confidence boxes, tracks objects between detections, and reports progress/FPS.
-- `best.pt`: trained YOLO26.
+- `main.py`: runs shrimp detection first, then passes its output to `shrimp_disease.py`.
+- `model1.py`: detects shrimp in one image and saves box metadata beside the annotated output.
+- `model2.py`: detects/tracks shrimp in video and saves per-frame box metadata beside the annotated output.
+- `best.pt`: shrimp detection weights.
+- `shrimp_disease.pt`: shrimp disease weights.
+
+
+
 ## Setup on Windows
 
 Use Python 3.10+ and create a virtual environment:
@@ -36,7 +40,7 @@ Verify CUDA:
 python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
 ```
 
-Place the trained `best.pt` beside the Python files. The code uses this project-relative location, so it does not depend on `C:\python`.
+Place `best.pt` and `shrimp_disease.pt` beside the Python files. The code uses project-relative defaults, so it does not depend on a specific installation directory.
 
 ## Run
 
@@ -47,6 +51,14 @@ python main.py path\to\image.jpg
 python main.py path\to\video.mp4
 ```
 
+The pipeline runs in two steps. First, `model1.py` or `model2.py` creates an annotated shrimp-detection output and box metadata. Then `shrimp_disease.py` reads that output, uses the metadata to crop each shrimp, and adds the predicted disease label.
+
+Use a different disease model file with:
+
+```powershell
+python main.py path\to\image.jpg --disease-model path\to\disease.pt
+```
+
 Force a device:
 
 ```powershell
@@ -54,7 +66,7 @@ python main.py path\to\video.mp4 --device gpu
 python main.py path\to\video.mp4 --device cpu
 ```
 
-The video detector writes `<input>_detected.mp4` beside the input video. Image results are written to `output_image/`.
+Intermediate files end in `_detected`; final files end in `_detected_disease`. Intermediate box metadata is saved as `.json` for images and `.jsonl` for videos. Images and their results are written to `output_image/`; video results and metadata are written to `output_video/`.
 
 ## Notes
 
