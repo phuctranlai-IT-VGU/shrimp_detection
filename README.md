@@ -40,7 +40,7 @@ Verify CUDA:
 python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
 ```
 
-Place `best.pt` and `shrimp_disease.pt` beside the Python files. The code uses project-relative defaults, so it does not depend on a specific installation directory.
+Place `best.pt` and `shrimp_disease.pt` beside the Python files.
 
 ## Run
 
