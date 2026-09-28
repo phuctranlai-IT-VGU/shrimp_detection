@@ -69,7 +69,6 @@ python main.py path\to\video.mp4 --device cpu
 Intermediate files end in `_detected`; final files end in `_detected_disease`. Intermediate box metadata is saved as `.json` for images and `.jsonl` for videos. Images and their results are written to `output_image/`; video results and metadata are written to `output_video/`.
 
 ## Notes
-
 - `--device auto` is the recommended public default.
 - `--device gpu` requires a CUDA-enabled NVIDIA PyTorch installation.
-- Tune `CONFIDENCE`, `DETECT_INTERVAL`, and `IMAGE_SIZE` in `model2.py` for the target hardware and video quality.
+
